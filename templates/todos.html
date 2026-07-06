@@ -1,0 +1,31 @@
+{{define "title"}}Todos{{end}}
+{{define "content"}}
+<h1>Your Todos</h1>
+
+<form method="post" action="/todos">
+  <input name="action" type="hidden" value="create">
+  <input name="title" placeholder="New todo" required>
+  <button type="submit">Add</button>
+</form>
+
+<ul>
+{{range .Todos}}
+  <li>
+    <form method="post" action="/todos" style="display:inline">
+      <input name="action" type="hidden" value="toggle">
+      <input name="id" type="hidden" value="{{.ID}}">
+      <button type="submit">{{if .Done}}✓{{else}}○{{end}}</button>
+    </form>
+    {{if .Done}}<s>{{.Title}}</s>{{else}}{{.Title}}{{end}}
+
+    <form method="post" action="/todos" style="display:inline">
+      <input name="action" type="hidden" value="delete">
+      <input name="id" type="hidden" value="{{.ID}}">
+      <button type="submit">Delete</button>
+    </form>
+  </li>
+{{end}}
+</ul>
+
+<p><a href="/logout">Logout</a></p>
+{{end}}

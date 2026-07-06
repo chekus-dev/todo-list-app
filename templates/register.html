@@ -1,0 +1,12 @@
+{{define "title"}}Register{{end}}
+{{define "content"}}
+<h1>Register</h1>
+{{if .Error}}
+<p style="color:red">{{.Error}}</p>
+{{end}}
+<form method="post" action="/register">
+  <input name="email" type="email" placeholder="Email" required>
+  <input name="password" type="password" placeholder="Password" required>
+  <button type="submit">Register</button>
+</form>
+{{end}}
