@@ -16,7 +16,15 @@ type Handler struct {
 }
 
 func New(userStore *store.UserStore, todoStore *store.TodoStore, sessionStore *session.CookieSessionStore) *Handler {
-	tmpl := template.Must(template.ParseGlob("templates/*.html"))
+	// Explicitly list base + each page template
+	tmpl := template.Must(template.ParseFiles(
+		"templates/base.html",
+		"templates/home.html",
+		"templates/login.html",
+		"templates/register.html",
+		"templates/todos.html",
+	))
+
 	return &Handler{
 		userStore:  userStore,
 		todoStore:  todoStore,

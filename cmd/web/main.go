@@ -23,7 +23,6 @@ func main() {
 	}
 	defer db.Close()
 
-	// Create tables if not exist
 	_, err = db.Exec(`
 		CREATE TABLE IF NOT EXISTS users (
 			id            INTEGER PRIMARY KEY AUTOINCREMENT,
