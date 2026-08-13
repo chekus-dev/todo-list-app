@@ -1,12 +1,24 @@
-{{define "title"}}Register{{end}}
-{{define "content"}}
-<h1>Register</h1>
-{{if .Error}}
-<p style="color:red">{{.Error}}</p>
-{{end}}
-<form method="post" action="/register">
-  <input name="email" type="email" placeholder="Email" required>
-  <input name="password" type="password" placeholder="Password" required>
-  <button type="submit">Register</button>
-</form>
-{{end}}
+{% extends "base.html" %}
+{% block title %}Register{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="card auth-card">
+    <h1>Create your account</h1>
+    <p>Start organizing your tasks in seconds.</p>
+
+    {% if error %}<p class="error">{{ error }}</p>{% endif %}
+
+    <form method="post" action="{{ url_for('register') }}">
+      <label for="email">Email</label>
+      <input id="email" name="email" type="email" placeholder="you@example.com" required autofocus>
+
+      <label for="password" class="mt">Password</label>
+      <input id="password" name="password" type="password" placeholder="At least 8 characters" required minlength="8">
+
+      <button type="submit" class="mt">Register</button>
+    </form>
+
+    <p class="mt">Already have an account? <a href="{{ url_for('login') }}">Login</a></p>
+  </div>
+</div>
+{% endblock %}

@@ -1,5 +1,16 @@
-{{define "title"}}Home{{end}}
-{{define "content"}}
-<h1>Welcome</h1>
-<p><a href="/login">Login</a> | <a href="/register">Register</a></p>
-{{end}}
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="card hero-card">
+    <h1>Stay on top of your tasks</h1>
+    <p>Manage your tasks with a simple, fast todo app. Set due dates, reminders, and never lose track of what matters.</p>
+    <div class="hero-actions">
+      <a href="{{ url_for('login') }}" class="btn-link">Login</a>
+      <span class="hero-or">or</span>
+      <a href="{{ url_for('register') }}" class="btn-link">Create an account</a>
+      <span class="hero-or">to get started</span>
+    </div>
+  </div>
+</div>
+{% endblock %}

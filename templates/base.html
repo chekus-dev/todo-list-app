@@ -1,17 +1,32 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>{{block "title" .}}Todo App{{end}}</title>
-  <link rel="stylesheet" href="/static/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Todo App{% endblock %} · Todo App</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-  <nav>
-    <a href="/">Home</a>
-  </nav>
+  <header>
+    <div class="inner">
+      <a href="{{ url_for('home') }}" class="brand">Todo App</a>
+      <nav>
+        {% if logged_in %}
+          <span class="nav-user">{{ user_email }}</span>
+          <a href="{{ url_for('todos') }}">My Todos</a>
+          <a href="{{ url_for('logout') }}">Logout</a>
+        {% else %}
+          <a href="{{ url_for('login') }}">Login</a>
+          <a href="{{ url_for('register') }}">Register</a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+
   <main>
-    {{block "content" .}}
-    {{end}}
+    {% block content %}{% endblock %}
   </main>
+
+  <footer>Built with Flask</footer>
 </body>
 </html>

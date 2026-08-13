@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Import Todos{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="card">
+    <h1>Import Todos</h1>
+    <p>Upload a JSON file exported from this app to import todos into your account.</p>
+
+    {% if message %}
+      <p class="error">{{ message }}</p>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data">
+      <label for="file">JSON file</label>
+      <input id="file" name="file" type="file" accept="application/json" required>
+      <button type="submit" class="mt">Import</button>
+    </form>
+
+    <p class="mt">Back to <a href="{{ url_for('todos') }}">todos</a></p>
+  </div>
+</div>
+{% endblock %}

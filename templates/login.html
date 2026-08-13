@@ -1,12 +1,24 @@
-{{define "title"}}Login{{end}}
-{{define "content"}}
-<h1>Login</h1>
-{{if .Error}}
-<p style="color:red">{{.Error}}</p>
-{{end}}
-<form method="post" action="/login">
-  <input name="email" type="email" placeholder="Email" required>
-  <input name="password" type="password" placeholder="Password" required>
-  <button type="submit">Login</button>
-</form>
-{{end}}
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="card auth-card">
+    <h1>Welcome back</h1>
+    <p>Login to see your todos.</p>
+
+    {% if error %}<p class="error">{{ error }}</p>{% endif %}
+
+    <form method="post" action="{{ url_for('login') }}">
+      <label for="email">Email</label>
+      <input id="email" name="email" type="email" placeholder="you@example.com" required autofocus>
+
+      <label for="password" class="mt">Password</label>
+      <input id="password" name="password" type="password" placeholder="Your password" required>
+
+      <button type="submit" class="mt">Login</button>
+    </form>
+
+    <p class="mt">Don't have an account? <a href="{{ url_for('register') }}">Register</a></p>
+  </div>
+</div>
+{% endblock %}
