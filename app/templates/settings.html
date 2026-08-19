@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Settings{% endblock %}
+{% block content %}
+<div class="container">
+
+  <div class="card">
+    <h1>Appearance</h1>
+    <p>Choose how Todo App looks on this account.</p>
+    <div class="theme-toggle">
+      <form method="post" action="{{ url_for('settings.theme') }}">
+        <input type="hidden" name="theme" value="dark">
+        <button type="submit" class="btn-sm {{ 'btn-active' if theme == 'dark' else 'btn-outline' }}">Dark</button>
+      </form>
+      <form method="post" action="{{ url_for('settings.theme') }}">
+        <input type="hidden" name="theme" value="light">
+        <button type="submit" class="btn-sm {{ 'btn-active' if theme == 'light' else 'btn-outline' }}">Light</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="card">
+    <h1>Email address</h1>
+    <p>Current: {{ user_email }}</p>
+    <form method="post" action="{{ url_for('settings.update_email') }}">
+      <label for="email">New email</label>
+      <input id="email" name="email" type="email" placeholder="new@example.com" required>
+
+      <label for="email_password" class="mt">Current password</label>
+      <input id="email_password" name="current_password" type="password" placeholder="Confirm with your password" required>
+
+      <button type="submit" class="mt">Update email</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h1>Password</h1>
+    <p>Choose a new password for your account.</p>
+    <form method="post" action="{{ url_for('settings.update_password') }}">
+      <label for="current_password">Current password</label>
+      <input id="current_password" name="current_password" type="password" required>
+
+      <label for="new_password" class="mt">New password</label>
+      <input id="new_password" name="new_password" type="password" placeholder="At least 8 characters" required minlength="8">
+
+      <label for="confirm_password" class="mt">Confirm new password</label>
+      <input id="confirm_password" name="confirm_password" type="password" required minlength="8">
+
+      <button type="submit" class="mt">Update password</button>
+    </form>
+  </div>
+
+  <div class="card card-danger">
+    <h1>Delete account</h1>
+    <p>This permanently deletes your account and all of your todos. This can't be undone.</p>
+    <form method="post" action="{{ url_for('settings.delete_account') }}" onsubmit="return confirm('Delete your account and all todos? This cannot be undone.');">
+      <label for="delete_password">Confirm your password</label>
+      <input id="delete_password" name="current_password" type="password" required>
+
+      <button type="submit" class="mt btn-danger">Delete my account</button>
+    </form>
+  </div>
+
+</div>
+{% endblock %}

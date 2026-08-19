@@ -6,7 +6,7 @@
     <h1>Your Todos</h1>
     <p>Add a task below, and optionally set a due date, reminder, recurrence, or tags.</p>
 
-    <form method="post" action="{{ url_for('todos_action') }}">
+    <form method="post" action="{{ url_for('todos.action') }}">
       <input name="action" type="hidden" value="create">
 
       <label for="title">New todo</label>
@@ -42,57 +42,57 @@
       <button type="submit" class="mt">Add</button>
     </form>
 
-    <form method="get" action="{{ url_for('todos') }}" style="margin-top:1rem; display:flex; gap:0.5rem; align-items:center;">
+    <form method="get" action="{{ url_for('todos.index') }}" class="todos-toolbar">
       <input name="q" type="search" placeholder="Search todos" value="{{ q or '' }}">
       <select name="tag">
         <option value="">All tags</option>
         {% for t in avail_tags %}
-          <option value="{{ t['name'] }}" {% if tag==t['name'] %}selected{% endif %}>{{ t['name'] }} ({{ t['cnt'] }})</option>
+          <option value="{{ t.name }}" {% if tag==t.name %}selected{% endif %}>{{ t.name }} ({{ t.cnt }})</option>
         {% endfor %}
       </select>
       <button type="submit">Filter</button>
-      <a href="{{ url_for('export_data') }}" style="margin-left:auto">Export</a>
-      <a href="{{ url_for('import_data') }}">Import</a>
+      <a href="{{ url_for('todos.export_data') }}" style="margin-left:auto">Export</a>
+      <a href="{{ url_for('todos.import_data') }}">Import</a>
     </form>
   </div>
 
   <div class="card">
     <ul class="todo-list">
       {% for todo in todos %}
-      <li class="{{ 'todo-done' if todo['done'] else '' }}">
-        <form method="post" action="{{ url_for('todos_action') }}">
+      <li class="{{ 'todo-done' if todo.done else '' }}">
+        <form method="post" action="{{ url_for('todos.action') }}">
           <input name="action" type="hidden" value="toggle">
-          <input name="id" type="hidden" value="{{ todo['id'] }}">
-          <button type="submit" class="todo-check">{{ '✓' if todo['done'] else '○' }}</button>
+          <input name="id" type="hidden" value="{{ todo.id }}">
+          <button type="submit" class="todo-check">{{ '✓' if todo.done else '○' }}</button>
         </form>
 
         <div class="todo-title">
-          {{ todo['title'] }}
-          {% if todo['due_date'] %}<div class="meta">Due: {{ todo['due_date'] }}</div>{% endif %}
-          {% if todo['reminder_at'] %}
+          {{ todo.title }}
+          {% if todo.due_date %}<div class="meta">Due: {{ todo.due_date.strftime('%b %d, %Y %I:%M %p') }}</div>{% endif %}
+          {% if todo.reminder_at %}
             <div class="meta">
-              Reminder: {{ todo['reminder_at'] }}
-              {% if todo['reminded'] %}<span class="badge">Notified</span>{% endif %}
+              Reminder: {{ todo.reminder_at.strftime('%b %d, %Y %I:%M %p') }}
+              {% if todo.reminded %}<span class="badge">Notified</span>{% endif %}
             </div>
           {% endif %}
 
-          {% if tags_map.get(todo['id']) %}
+          {% if todo.tags %}
             <div class="meta">Tags:
-              {% for t in tags_map.get(todo['id']) %}
-                <a href="{{ url_for('todos') }}?tag={{ t }}">#{{ t }}</a>{% if not loop.last %}, {% endif %}
+              {% for t in todo.tags %}
+                <a href="{{ url_for('todos.index') }}?tag={{ t.name }}">#{{ t.name }}</a>{% if not loop.last %}, {% endif %}
               {% endfor %}
             </div>
           {% endif %}
 
-          {% if todo['recurrence'] %}
-            <div class="meta">Recurs: {{ todo['recurrence'] }}</div>
+          {% if todo.recurrence %}
+            <div class="meta">Recurs: {{ todo.recurrence }}</div>
           {% endif %}
         </div>
 
         <div class="todo-actions">
-          <form method="post" action="{{ url_for('todos_action') }}">
+          <form method="post" action="{{ url_for('todos.action') }}">
             <input name="action" type="hidden" value="delete">
-            <input name="id" type="hidden" value="{{ todo['id'] }}">
+            <input name="id" type="hidden" value="{{ todo.id }}">
             <button type="submit" class="btn-sm btn-danger">Delete</button>
           </form>
         </div>

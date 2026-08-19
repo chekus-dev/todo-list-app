@@ -8,7 +8,7 @@
 
     {% if error %}<p class="error">{{ error }}</p>{% endif %}
 
-    <form method="post" action="{{ url_for('register') }}">
+    <form method="post" action="{{ url_for('auth.register') }}">
       <label for="email">Email</label>
       <input id="email" name="email" type="email" placeholder="you@example.com" required autofocus>
 
@@ -18,7 +18,7 @@
       <button type="submit" class="mt">Register</button>
     </form>
 
-    <p class="mt">Already have an account? <a href="{{ url_for('login') }}">Login</a></p>
+    <p class="mt">Already have an account? <a href="{{ url_for('auth.login') }}">Login</a></p>
   </div>
 </div>
 {% endblock %}

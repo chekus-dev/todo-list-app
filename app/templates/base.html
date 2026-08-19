@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="{{ theme }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="{{ '#f4f0ff' if theme == 'light' else '#0a0a0f' }}">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Todo App">
+  <meta name="format-detection" content="telephone=no">
+  <title>{% block title %}Todo App{% endblock %} · Todo App</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <header>
+    <div class="inner">
+      <a href="{{ url_for('main.home') }}" class="brand">Todo App</a>
+      <nav>
+        {% if logged_in %}
+          <span class="nav-user">{{ user_email }}</span>
+          <a href="{{ url_for('todos.index') }}">My Todos</a>
+          <a href="{{ url_for('settings.index') }}">Settings</a>
+          <a href="{{ url_for('auth.logout') }}">Logout</a>
+        {% else %}
+          <a href="{{ url_for('auth.login') }}">Login</a>
+          <a href="{{ url_for('auth.register') }}">Register</a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="container" style="margin-bottom:0;">
+          {% for category, message in messages %}
+            <p class="{{ 'success' if category == 'success' else 'error' }}">{{ message }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer>Built with Flask</footer>
+</body>
+</html>
