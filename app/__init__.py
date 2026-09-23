@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from flask import Flask
 from flask_login import current_user
 
@@ -28,6 +30,7 @@ def create_app(config_class=Config):
             "logged_in": current_user.is_authenticated,
             "user_email": current_user.email if current_user.is_authenticated else None,
             "theme": current_user.theme if current_user.is_authenticated else "dark",
+            "now": datetime.now(),
         }
 
     with app.app_context():

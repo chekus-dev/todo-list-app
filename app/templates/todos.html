@@ -2,15 +2,34 @@
 {% block title %}Todos{% endblock %}
 {% block content %}
 <div class="container">
-  <div class="card">
-    <h1>Your Todos</h1>
-    <p>Add a task below, and optionally set a due date, reminder, recurrence, or tags.</p>
+  <section class="dashboard-heading">
+    <div>
+      <p class="eyebrow">{{ now.strftime('%A · %B %d, %Y') }}</p>
+      <h1 class="welcome-title"><span>Make today count,</span><span class="welcome-name">{{ user_email.split('@')[0] }}.</span></h1>
+      <p class="heading-copy">Small marks of progress add up.</p>
+    </div>
+    <a href="#new-task" class="quick-add-link">＋ New task</a>
+  </section>
+
+  <section class="stats-grid" aria-label="Task summary">
+    <div class="stat-card stat-focus"><span class="stat-label">On the desk</span><strong>{{ open_count }}</strong><span class="stat-note">{{ total_count }} total marks</span></div>
+    <div class="stat-card"><span class="stat-label">Today</span><strong>{{ due_today_count }}</strong><span class="stat-note">Due before midnight</span></div>
+    <div class="stat-card"><span class="stat-label">In the book</span><strong>{{ completed_count }}</strong><span class="stat-note">{{ progress }}% complete</span></div>
+    <div class="stat-card stat-alert"><span class="stat-label">Past due</span><strong>{{ overdue_count }}</strong><span class="stat-note">Worth a second look</span></div>
+  </section>
+
+  <div class="dashboard-layout">
+    <section class="card task-composer" id="new-task">
+      <div class="section-heading">
+        <div><p class="eyebrow">New mark</p><h2>Put it down.</h2></div>
+        <span class="section-icon">✦</span>
+      </div>
 
     <form method="post" action="{{ url_for('todos.action') }}">
       <input name="action" type="hidden" value="create">
 
-      <label for="title">New todo</label>
-      <input id="title" name="title" type="text" placeholder="What needs to be done?" required autofocus>
+      <label for="title">Task</label>
+      <input id="title" name="title" type="text" placeholder="e.g. Prepare the project brief" required autofocus>
 
       <div class="form-row">
         <div class="form-col">
@@ -41,8 +60,14 @@
 
       <button type="submit" class="mt">Add</button>
     </form>
+    </section>
 
-    <form method="get" action="{{ url_for('todos.index') }}" class="todos-toolbar">
+    <section class="card list-card">
+      <div class="list-header">
+        <div><p class="eyebrow">The notebook</p><h2>Everything in view</h2></div>
+        <div class="list-tools"><a href="{{ url_for('todos.export_data') }}" title="Export tasks">Export</a><a href="{{ url_for('todos.import_data') }}" title="Import tasks">Import</a></div>
+      </div>
+      <form method="get" action="{{ url_for('todos.index') }}" class="todos-toolbar">
       <input name="q" type="search" placeholder="Search todos" value="{{ q or '' }}">
       <select name="tag">
         <option value="">All tags</option>
@@ -51,12 +76,11 @@
         {% endfor %}
       </select>
       <button type="submit">Filter</button>
-      <a href="{{ url_for('todos.export_data') }}" style="margin-left:auto">Export</a>
-      <a href="{{ url_for('todos.import_data') }}">Import</a>
-    </form>
-  </div>
+      </form>
+    </section>
 
-  <div class="card">
+  <section class="card task-list-card">
+    {% if q or tag %}<p class="filter-summary">Showing filtered results{% if q %} for “{{ q }}”{% endif %}{% if tag %} in #{{ tag }}{% endif %}. <a href="{{ url_for('todos.index') }}">Clear filters</a></p>{% endif %}
     <ul class="todo-list">
       {% for todo in todos %}
       <li class="{{ 'todo-done' if todo.done else '' }}">
@@ -68,7 +92,7 @@
 
         <div class="todo-title">
           {{ todo.title }}
-          {% if todo.due_date %}<div class="meta">Due: {{ todo.due_date.strftime('%b %d, %Y %I:%M %p') }}</div>{% endif %}
+          {% if todo.due_date %}<div class="meta {{ 'meta-overdue' if not todo.done and todo.due_date.date() < now.date() else '' }}">{{ 'Overdue' if not todo.done and todo.due_date.date() < now.date() else 'Due' }}: {{ todo.due_date.strftime('%b %d, %Y %I:%M %p') }}</div>{% endif %}
           {% if todo.reminder_at %}
             <div class="meta">
               Reminder: {{ todo.reminder_at.strftime('%b %d, %Y %I:%M %p') }}
@@ -77,15 +101,15 @@
           {% endif %}
 
           {% if todo.tags %}
-            <div class="meta">Tags:
+            <div class="meta tag-row">
               {% for t in todo.tags %}
-                <a href="{{ url_for('todos.index') }}?tag={{ t.name }}">#{{ t.name }}</a>{% if not loop.last %}, {% endif %}
+                <a class="tag-pill" href="{{ url_for('todos.index') }}?tag={{ t.name }}">#{{ t.name }}</a>
               {% endfor %}
             </div>
           {% endif %}
 
           {% if todo.recurrence %}
-            <div class="meta">Recurs: {{ todo.recurrence }}</div>
+            <div class="meta">↻ Repeats {{ todo.recurrence }}</div>
           {% endif %}
         </div>
 
@@ -93,7 +117,7 @@
           <form method="post" action="{{ url_for('todos.action') }}">
             <input name="action" type="hidden" value="delete">
             <input name="id" type="hidden" value="{{ todo.id }}">
-            <button type="submit" class="btn-sm btn-danger">Delete</button>
+            <button type="submit" class="btn-sm btn-danger" aria-label="Delete {{ todo.title }}">Delete</button>
           </form>
         </div>
       </li>
@@ -101,6 +125,6 @@
       <li class="empty-state">No todos yet. Add one above to get started.</li>
       {% endfor %}
     </ul>
-  </div>
+  </section>
 </div>
 {% endblock %}

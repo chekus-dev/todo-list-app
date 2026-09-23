@@ -7,15 +7,15 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Todo App">
+  <meta name="apple-mobile-web-app-title" content="Daymark">
   <meta name="format-detection" content="telephone=no">
-  <title>{% block title %}Todo App{% endblock %} · Todo App</title>
+  <title>{% block title %}Daymark{% endblock %} · Daymark</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
   <header>
     <div class="inner">
-      <a href="{{ url_for('main.home') }}" class="brand">Todo App</a>
+      <a href="{{ url_for('main.home') }}" class="brand"><span class="brand-mark">/</span> Daymark</a>
       <nav>
         {% if logged_in %}
           <span class="nav-user">{{ user_email }}</span>
@@ -43,6 +43,6 @@
     {% block content %}{% endblock %}
   </main>
 
-  <footer>Built with Flask</footer>
+  <footer><span class="footer-mark">Daymark</span> · a little order for the day</footer>
 </body>
 </html>

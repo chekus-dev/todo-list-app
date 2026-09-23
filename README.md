@@ -32,6 +32,16 @@ python run.py
 
 Visit http://127.0.0.1:5000 — the SQLite database (`todo.db`) is created automatically on first run.
 
+## Hosting
+
+This app is ready for any host that supports a Python web service. Set the `SECRET_KEY` environment variable, then use:
+
+```bash
+gunicorn run:app
+```
+
+The included `Procfile` uses that command. For a hosted database, set `DATABASE_URL` to a PostgreSQL connection string. Without it, the app uses local SQLite, which is suitable for development but may not persist across deploys on some platforms.
+
 ## Notes
 
 - Passwords are hashed with Werkzeug's `generate_password_hash`.

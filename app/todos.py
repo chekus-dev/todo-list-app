@@ -79,6 +79,20 @@ def index():
         Todo.done.asc(), Todo.due_date.is_(None), Todo.due_date.asc()
     ).all()
 
+    all_todos = Todo.query.filter_by(user_id=current_user.id).all()
+    today = datetime.today().date()
+    open_todos = [todo for todo in all_todos if not todo.done]
+    completed_count = len(all_todos) - len(open_todos)
+    due_today_count = sum(
+        1 for todo in open_todos
+        if todo.due_date and todo.due_date.date() == today
+    )
+    overdue_count = sum(
+        1 for todo in open_todos
+        if todo.due_date and todo.due_date.date() < today
+    )
+    progress = round((completed_count / len(all_todos)) * 100) if all_todos else 0
+
     avail_tags_rows = (
         db.session.query(Tag.name, db.func.count(Todo.id))
         .join(Todo.tags)
@@ -90,6 +104,9 @@ def index():
 
     return render_template(
         "todos.html", todos=todos, avail_tags=avail_tags, q=q, tag=tag,
+        total_count=len(all_todos), open_count=len(open_todos),
+        completed_count=completed_count, due_today_count=due_today_count,
+        overdue_count=overdue_count, progress=progress,
     )
 
 
