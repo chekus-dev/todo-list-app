@@ -42,6 +42,24 @@ gunicorn run:app
 
 The included `Procfile` uses that command. For a hosted database, set `DATABASE_URL` to a PostgreSQL connection string. Without it, the app uses local SQLite, which is suitable for development but may not persist across deploys on some platforms.
 
+### Deploy on Render
+
+1. Push this repository to GitHub or GitLab.
+2. In Render, choose **New +** → **Web Service**, then connect the repository.
+3. Use these settings:
+
+    - **Runtime:** Python 3
+    - **Build Command:** `pip install -r requirements.txt`
+    - **Start Command:** `gunicorn run:app`
+    - **Instance Type:** Free or another plan
+
+4. Add an environment variable named `SECRET_KEY` with a long random value.
+5. Create a Render PostgreSQL database from **New +** → **PostgreSQL**.
+6. Copy its **Internal Database URL** into the web service environment variable named `DATABASE_URL`.
+7. Deploy the service. Render will provide the public `.onrender.com` URL.
+
+Do not rely on the default SQLite database for production because files on some Render services are ephemeral. PostgreSQL keeps user accounts and todos across deploys.
+
 ## Notes
 
 - Passwords are hashed with Werkzeug's `generate_password_hash`.
