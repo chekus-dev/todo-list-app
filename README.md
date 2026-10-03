@@ -42,11 +42,9 @@ gunicorn run:app
 
 The included `Procfile` uses that command. For a hosted database, set `DATABASE_URL` to a PostgreSQL connection string. Without it, the app uses local SQLite, which is suitable for development but may not persist across deploys on some platforms.
 
-### Deploy on Render
+### Deployed  on Render
+- live link https://todo-list-app-4-6mr8.onrender.com/
 
-1. Push this repository to GitHub or GitLab.
-2. In Render, choose **New +** → **Web Service**, then connect the repository.
-3. Use these settings:
 
     - **Runtime:** Python 3
     - **Build Command:** `pip install -r requirements.txt`
