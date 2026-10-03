@@ -66,3 +66,4 @@ Do not rely on the default SQLite database for production because files on some 
 - Mobile styling lives in `static/css/style.css` under the two `@media` blocks near the bottom.
 - Theme (dark/light) is a per-user preference set on `/settings`, applied via a `data-theme` attribute on `<html>`.
 - If you're upgrading from an earlier version of this project, delete `todo.db` so the new `theme` column on `User` gets created (there's no migration tool wired up here).
+<img width="1300" height="1216" alt="image" src="https://github.com/user-attachments/assets/8757c4f6-71f7-4e27-96ff-c697a1c472b5" />
