@@ -1,6 +1,6 @@
 <div align="center">
 
-# ✅ Todo App
+# ✅ Daymark
 
 **A Flask todo app with auth, due dates, reminders, recurrence, tags, search, and JSON import/export.**
 
