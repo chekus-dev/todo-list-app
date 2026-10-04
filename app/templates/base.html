@@ -1,48 +1,83 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="{{ theme }}">
+<html lang="en" data-theme="{{ theme }}" class="{{ 'dark' if theme == 'dark' else '' }}">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="{{ '#f4f0ff' if theme == 'light' else '#0a0a0f' }}">
-  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#185fa5" id="theme-color-meta">
   <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Daymark">
   <meta name="format-detection" content="telephone=no">
   <title>{% block title %}Daymark{% endblock %} · Daymark</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/todo.css') }}">
+  <script>
+    // Before first paint: resolve Light / Dark / System so there is no flash.
+    (function () {
+      var pref = "{{ theme }}";
+      var dark = pref === 'dark' || (pref === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      document.documentElement.classList.toggle('dark', dark);
+      var m = document.getElementById('theme-color-meta');
+      if (m) m.setAttribute('content', dark ? '#0b1220' : '#185fa5');
+    })();
+  </script>
 </head>
-<body>
-  <header>
-    <div class="inner">
-      <a href="{{ url_for('main.home') }}" class="brand"><span class="brand-mark">/</span> Daymark</a>
-      <nav>
-        {% if logged_in %}
-          <span class="nav-user">{{ user_email }}</span>
-          <a href="{{ url_for('todos.index') }}">My Todos</a>
-          <a href="{{ url_for('settings.index') }}">Settings</a>
-          <a href="{{ url_for('auth.logout') }}">Logout</a>
-        {% else %}
-          <a href="{{ url_for('auth.login') }}">Login</a>
-          <a href="{{ url_for('auth.register') }}">Register</a>
-        {% endif %}
-      </nav>
+{% set icons = url_for('static', filename='icons.svg') %}
+{% macro flashes() %}
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      {% set ok = category == 'success' %}
+      <div class="alert {{ 'alert-safe' if ok else 'alert-over' }} mb-4" role="{{ 'status' if ok else 'alert' }}">
+        <svg class="icon" aria-hidden="true"><use href="{{ icons }}#{{ 'check' if ok else 'alert' }}"/></svg>
+        <p>{{ message }}</p>
+      </div>
+    {% endfor %}
+  {% endwith %}
+{% endmacro %}
+{% set chrome = logged_in and not auth_page %}
+<body{% if chrome %} class="has-chrome"{% endif %}>
+  {% if chrome %}
+  {% set ep = request.endpoint or '' %}
+  <nav class="tabbar" aria-label="Main">
+    <div class="sidebar-brand">
+      <span class="brand-mark" aria-hidden="true">/</span>
+      <span>Daymark</span>
     </div>
-  </header>
-
-  <main>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        <div class="container" style="margin-bottom:0;">
-          {% for category, message in messages %}
-            <p class="{{ 'success' if category == 'success' else 'error' }}">{{ message }}</p>
-          {% endfor %}
-        </div>
-      {% endif %}
-    {% endwith %}
+    <a href="{{ url_for('todos.index') }}" class="nav-item" {% if ep.startswith('todos.') %}aria-current="page"{% endif %}>
+      <svg class="icon" aria-hidden="true"><use href="{{ icons }}#home"/></svg>
+      <span>Todos</span>
+    </a>
+    <a href="{{ url_for('settings.index') }}" class="nav-item" {% if ep.startswith('settings.') %}aria-current="page"{% endif %}>
+      <svg class="icon" aria-hidden="true"><use href="{{ icons }}#settings"/></svg>
+      <span>Settings</span>
+    </a>
+    <a href="{{ url_for('auth.logout') }}" class="nav-item">
+      <svg class="icon" aria-hidden="true"><use href="{{ icons }}#logout"/></svg>
+      <span>Log out</span>
+    </a>
+    <p class="sidebar-foot hint">{{ user_email }}</p>
+  </nav>
+  <main class="app-main">
+  {% else %}
+  <main class="auth-shell">
+    <div class="auth-card">
+      <a href="{{ url_for('main.home') }}" class="auth-brand" style="text-decoration:none;color:inherit">
+        <span class="brand-mark" aria-hidden="true">/</span>
+        Daymark
+      </a>
+  {% endif %}
+    {{ flashes() }}
     {% block content %}{% endblock %}
+  {% if chrome %}
   </main>
-
-  <footer><span class="footer-mark">Daymark</span> · a little order for the day</footer>
+  {% else %}
+    </div>
+  </main>
+  {% endif %}
 </body>
 </html>

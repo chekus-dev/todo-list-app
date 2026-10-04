@@ -29,7 +29,7 @@ def create_app(config_class=Config):
         return {
             "logged_in": current_user.is_authenticated,
             "user_email": current_user.email if current_user.is_authenticated else None,
-            "theme": current_user.theme if current_user.is_authenticated else "dark",
+            "theme": current_user.theme if current_user.is_authenticated else "system",
             "now": datetime.now(),
         }
 

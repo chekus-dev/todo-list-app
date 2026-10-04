@@ -4,7 +4,7 @@ from io import BytesIO
 
 from flask import (
     Blueprint, render_template, request, redirect, url_for,
-    flash, send_file,
+    flash, send_file, jsonify,
 )
 from flask_login import login_required, current_user
 
@@ -218,3 +218,33 @@ def import_data():
                 message = "Could not read that file. Make sure it's a valid export from this app."
 
     return render_template("import.html", message=message)
+
+
+# ---- reminders ----------------------------------------------------------
+# Reminder times are typed in the user's own clock (datetime-local, no zone),
+# so the browser decides when one is due; the server only lists what is
+# pending and records what has been shown.
+
+@bp.route("/reminders")
+@login_required
+def reminders():
+    pending = Todo.query.filter(
+        Todo.user_id == current_user.id,
+        Todo.done.is_(False),
+        Todo.reminded.is_(False),
+        Todo.reminder_at.isnot(None),
+    ).all()
+    return jsonify([
+        {"id": t.id, "title": t.title, "at": t.reminder_at.isoformat()}
+        for t in pending
+    ])
+
+
+@bp.route("/reminders/seen", methods=["POST"])
+@login_required
+def reminder_seen():
+    todo = _get_owned_todo(request.form.get("id"))
+    if todo:
+        todo.reminded = True
+        db.session.commit()
+    return ("", 204)

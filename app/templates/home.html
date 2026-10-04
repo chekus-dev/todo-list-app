@@ -1,16 +1,12 @@
 {% extends "base.html" %}
+{% set auth_page = true %}
 {% block title %}Home{% endblock %}
 {% block content %}
-<div class="container">
-  <div class="card hero-card">
-    <p class="eyebrow">A daily planning tool</p>
-    <h1>Leave a mark on the day.</h1>
-    <p>Daymark keeps the things worth doing close at hand, from the first small task to the last satisfying check.</p>
-    <div class="hero-actions">
-      <a href="{{ url_for('auth.login') }}" class="btn-link">Open your notebook</a>
-      <span class="hero-or">or</span>
-      <a href="{{ url_for('auth.register') }}" class="btn-link">Start fresh</a>
-    </div>
-  </div>
+<h1 class="auth-title">Leave a mark on the day.</h1>
+<p class="auth-sub">Daymark keeps the things worth doing close at hand, from the first small task to the last satisfying check.</p>
+
+<div class="auth-actions">
+  <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-block">Open your notebook</a>
+  <a href="{{ url_for('auth.register') }}" class="btn btn-soft btn-block">Start fresh</a>
 </div>
 {% endblock %}

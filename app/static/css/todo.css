@@ -1,0 +1,19 @@
+/* Daymark-only additions on top of Budget Tracker's app.css. Uses its tokens. */
+button.expense-icon { border: 0; cursor: pointer; padding: 0; font: inherit; transition: background-color .15s, color .15s; }
+button.expense-icon .icon { opacity: .35; transition: opacity .15s; }
+button.expense-icon:hover .icon, button.expense-icon:focus-visible .icon { opacity: 1; }
+.expense-row.is-income .expense-icon .icon { opacity: 1; }
+.expense-row.is-income .expense-title { color: var(--ink-muted); text-decoration: line-through; }
+.expense-title { white-space: normal; overflow-wrap: anywhere; }
+.expense-meta a { color: var(--brand-ink); font-weight: 600; text-decoration: none; }
+.expense-meta a:hover { text-decoration: underline; }
+.expense-meta .is-late { color: var(--over-ink); font-weight: 600; }
+.expense-actions form, .contents { display: contents; }
+.expense-actions { gap: 0; }
+.head-actions { display: flex; gap: 8px; }
+.row-2 { display: grid; grid-template-columns: 1fr; gap: 14px; }
+@media (min-width: 560px) { .row-2 { grid-template-columns: 1fr 1fr; } }
+.card-danger { border-color: var(--over); }
+.auth-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+.fab { text-decoration: none; }
+[hidden] { display: none !important; }

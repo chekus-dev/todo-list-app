@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user, logout_user
 
 from .extensions import db
-from .models import User
+from .models import User, Tag
 
 bp = Blueprint("settings", __name__, url_prefix="/settings")
 
@@ -17,7 +17,7 @@ def index():
 @login_required
 def theme():
     choice = request.form.get("theme")
-    if choice in ("dark", "light"):
+    if choice in ("dark", "light", "system"):
         current_user.theme = choice
         db.session.commit()
     return redirect(request.referrer or url_for("settings.index"))
@@ -75,6 +75,7 @@ def delete_account():
 
     user = User.query.get(current_user.id)
     logout_user()
+    Tag.query.filter_by(user_id=user.id).delete()
     db.session.delete(user)
     db.session.commit()
     flash("Your account has been deleted.", "success")

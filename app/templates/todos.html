@@ -1,130 +1,242 @@
 {% extends "base.html" %}
 {% block title %}Todos{% endblock %}
 {% block content %}
-<div class="container">
-  <section class="dashboard-heading">
-    <div>
-      <p class="eyebrow">{{ now.strftime('%A · %B %d, %Y') }}</p>
-      <h1 class="welcome-title"><span>Make today count,</span><span class="welcome-name">{{ user_email.split('@')[0] }}.</span></h1>
-      <p class="heading-copy">Small marks of progress add up.</p>
-    </div>
-    <a href="#new-task" class="quick-add-link">＋ New task</a>
-  </section>
+{% set icons = url_for('static', filename='icons.svg') %}
 
-  <section class="stats-grid" aria-label="Task summary">
-    <div class="stat-card stat-focus"><span class="stat-label">On the desk</span><strong>{{ open_count }}</strong><span class="stat-note">{{ total_count }} total marks</span></div>
-    <div class="stat-card"><span class="stat-label">Today</span><strong>{{ due_today_count }}</strong><span class="stat-note">Due before midnight</span></div>
-    <div class="stat-card"><span class="stat-label">In the book</span><strong>{{ completed_count }}</strong><span class="stat-note">{{ progress }}% complete</span></div>
-    <div class="stat-card stat-alert"><span class="stat-label">Past due</span><strong>{{ overdue_count }}</strong><span class="stat-note">Worth a second look</span></div>
-  </section>
+<div id="reminder-toasts" aria-live="polite"></div>
 
-  <div class="dashboard-layout">
-    <section class="card task-composer" id="new-task">
-      <div class="section-heading">
-        <div><p class="eyebrow">New mark</p><h2>Put it down.</h2></div>
-        <span class="section-icon">✦</span>
-      </div>
-
-    <form method="post" action="{{ url_for('todos.action') }}">
-      <input name="action" type="hidden" value="create">
-
-      <label for="title">Task</label>
-      <input id="title" name="title" type="text" placeholder="e.g. Prepare the project brief" required autofocus>
-
-      <div class="form-row">
-        <div class="form-col">
-          <label for="due" class="mt">Due (optional)</label>
-          <input id="due" name="due" type="datetime-local">
-        </div>
-        <div class="form-col">
-          <label for="reminder" class="mt">Reminder (optional)</label>
-          <input id="reminder" name="reminder" type="datetime-local">
-        </div>
-      </div>
-
-      <div class="form-row">
-        <div class="form-col">
-          <label for="recurrence" class="mt">Recurrence</label>
-          <select id="recurrence" name="recurrence">
-            <option value="">None</option>
-            <option value="daily">Daily</option>
-            <option value="weekly">Weekly</option>
-            <option value="monthly">Monthly</option>
-          </select>
-        </div>
-        <div class="form-col">
-          <label for="tags" class="mt">Tags (comma-separated)</label>
-          <input id="tags" name="tags" type="text" placeholder="work, personal">
-        </div>
-      </div>
-
-      <button type="submit" class="mt">Add</button>
-    </form>
-    </section>
-
-    <section class="card list-card">
-      <div class="list-header">
-        <div><p class="eyebrow">The notebook</p><h2>Everything in view</h2></div>
-        <div class="list-tools"><a href="{{ url_for('todos.export_data') }}" title="Export tasks">Export</a><a href="{{ url_for('todos.import_data') }}" title="Import tasks">Import</a></div>
-      </div>
-      <form method="get" action="{{ url_for('todos.index') }}" class="todos-toolbar">
-      <input name="q" type="search" placeholder="Search todos" value="{{ q or '' }}">
-      <select name="tag">
-        <option value="">All tags</option>
-        {% for t in avail_tags %}
-          <option value="{{ t.name }}" {% if tag==t.name %}selected{% endif %}>{{ t.name }} ({{ t.cnt }})</option>
-        {% endfor %}
-      </select>
-      <button type="submit">Filter</button>
-      </form>
-    </section>
-
-  <section class="card task-list-card">
-    {% if q or tag %}<p class="filter-summary">Showing filtered results{% if q %} for “{{ q }}”{% endif %}{% if tag %} in #{{ tag }}{% endif %}. <a href="{{ url_for('todos.index') }}">Clear filters</a></p>{% endif %}
-    <ul class="todo-list">
-      {% for todo in todos %}
-      <li class="{{ 'todo-done' if todo.done else '' }}">
-        <form method="post" action="{{ url_for('todos.action') }}">
-          <input name="action" type="hidden" value="toggle">
-          <input name="id" type="hidden" value="{{ todo.id }}">
-          <button type="submit" class="todo-check">{{ '✓' if todo.done else '○' }}</button>
-        </form>
-
-        <div class="todo-title">
-          {{ todo.title }}
-          {% if todo.due_date %}<div class="meta {{ 'meta-overdue' if not todo.done and todo.due_date.date() < now.date() else '' }}">{{ 'Overdue' if not todo.done and todo.due_date.date() < now.date() else 'Due' }}: {{ todo.due_date.strftime('%b %d, %Y %I:%M %p') }}</div>{% endif %}
-          {% if todo.reminder_at %}
-            <div class="meta">
-              Reminder: {{ todo.reminder_at.strftime('%b %d, %Y %I:%M %p') }}
-              {% if todo.reminded %}<span class="badge">Notified</span>{% endif %}
-            </div>
-          {% endif %}
-
-          {% if todo.tags %}
-            <div class="meta tag-row">
-              {% for t in todo.tags %}
-                <a class="tag-pill" href="{{ url_for('todos.index') }}?tag={{ t.name }}">#{{ t.name }}</a>
-              {% endfor %}
-            </div>
-          {% endif %}
-
-          {% if todo.recurrence %}
-            <div class="meta">↻ Repeats {{ todo.recurrence }}</div>
-          {% endif %}
-        </div>
-
-        <div class="todo-actions">
-          <form method="post" action="{{ url_for('todos.action') }}">
-            <input name="action" type="hidden" value="delete">
-            <input name="id" type="hidden" value="{{ todo.id }}">
-            <button type="submit" class="btn-sm btn-danger" aria-label="Delete {{ todo.title }}">Delete</button>
-          </form>
-        </div>
-      </li>
-      {% else %}
-      <li class="empty-state">No todos yet. Add one above to get started.</li>
-      {% endfor %}
-    </ul>
-  </section>
+<div class="alert alert-brand mb-4" id="notify-banner" hidden>
+  <svg class="icon" aria-hidden="true"><use href="{{ icons }}#bell"/></svg>
+  <p>Get a notification when a reminder is due.
+    <button type="button" class="btn btn-soft btn-sm" id="notify-enable">Turn on notifications</button></p>
 </div>
+
+<section class="balance-card" aria-labelledby="hero-label">
+  <p class="eyebrow" id="hero-label">{{ now.strftime('%A · %B %d') }} · On the desk</p>
+  <p class="balance-value">{{ open_count }} open</p>
+  <p class="balance-note">
+    Make today count, {{ user_email.split("@")[0] }}.
+    {{ completed_count }} of {{ total_count }} done.
+  </p>
+  <div class="balance-stats">
+    <div class="balance-pill">
+      <div class="balance-pill-value">{{ completed_count }}</div>
+      <div class="balance-pill-label">Done</div>
+    </div>
+    <div class="balance-pill">
+      <div class="balance-pill-value">{{ due_today_count }}</div>
+      <div class="balance-pill-label">Due today</div>
+    </div>
+    <div class="balance-pill">
+      <div class="balance-pill-value">{{ overdue_count }}</div>
+      <div class="balance-pill-label">Past due</div>
+    </div>
+    <div class="balance-pill">
+      <div class="balance-pill-value">{{ total_count }}</div>
+      <div class="balance-pill-label">Total</div>
+    </div>
+  </div>
+</section>
+
+<section class="card mb-4" aria-labelledby="progress-label">
+  <div class="section-head">
+    <h2 class="card-title" id="progress-label">Progress</h2>
+    <span class="figure figure-sm">{{ progress }}%</span>
+  </div>
+  <div class="progress">
+    <div class="progress-fill {{ 'is-near' if overdue_count else 'is-safe' }}" style="width: {{ progress }}%;"></div>
+  </div>
+  <p class="hint mt-2">
+    {% if overdue_count %}<strong>{{ overdue_count }} past due.</strong> {% endif %}{{ completed_count }} of {{ total_count }} tasks complete.
+  </p>
+</section>
+
+{% if overdue_count %}
+<div class="alert alert-over mb-4" role="alert">
+  <svg class="icon" aria-hidden="true"><use href="{{ icons }}#alert"/></svg>
+  <p><strong>{{ overdue_count }} task{{ 's' if overdue_count != 1 }} past due.</strong> Worth a second look.</p>
+</div>
+{% endif %}
+
+<section class="card mb-4" id="new-task" aria-labelledby="new-label">
+  <h2 class="card-title" id="new-label">New task</h2>
+  <form method="post" action="{{ url_for('todos.action') }}" class="stack-tight mt-4">
+    <input name="action" type="hidden" value="create">
+
+    <div>
+      <label class="label" for="title">Task</label>
+      <input class="input" id="title" name="title" type="text" placeholder="e.g. Prepare the project brief" required>
+    </div>
+
+    <div class="row-2">
+      <div>
+        <label class="label" for="due">Due (optional)</label>
+        <input class="input" id="due" name="due" type="datetime-local">
+      </div>
+      <div>
+        <label class="label" for="reminder">Reminder (optional)</label>
+        <input class="input" id="reminder" name="reminder" type="datetime-local">
+      </div>
+    </div>
+
+    <div class="row-2">
+      <div>
+        <label class="label" for="recurrence">Recurrence</label>
+        <select class="input" id="recurrence" name="recurrence">
+          <option value="">None</option>
+          <option value="daily">Daily</option>
+          <option value="weekly">Weekly</option>
+          <option value="monthly">Monthly</option>
+        </select>
+      </div>
+      <div>
+        <label class="label" for="tags">Tags (comma-separated)</label>
+        <input class="input" id="tags" name="tags" type="text" placeholder="work, personal">
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-block">
+      <svg class="icon" aria-hidden="true"><use href="{{ icons }}#check"/></svg>
+      Add task
+    </button>
+  </form>
+</section>
+
+<form method="get" action="{{ url_for('todos.index') }}" class="filter-bar">
+  <div class="filter-field filter-field-grow">
+    <label class="label" for="q">Search</label>
+    <div class="filter-input">
+      <svg class="icon icon-sm" aria-hidden="true"><use href="{{ icons }}#search"/></svg>
+      <input class="input" id="q" name="q" type="search" placeholder="Search todos" value="{{ q or '' }}">
+    </div>
+  </div>
+  <div class="filter-field">
+    <label class="label" for="tag">Tag</label>
+    <select class="input" id="tag" name="tag">
+      <option value="">All tags</option>
+      {% for t in avail_tags %}
+        <option value="{{ t.name }}" {% if tag==t.name %}selected{% endif %}>{{ t.name }} ({{ t.cnt }})</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="filter-actions">
+    <button type="submit" class="btn btn-primary">Filter</button>
+    {% if q or tag %}<a class="btn btn-soft" href="{{ url_for('todos.index') }}">Clear</a>{% endif %}
+  </div>
+</form>
+
+<div class="section-head">
+  <h2 class="card-title">{% if q or tag %}Results{% else %}Your tasks{% endif %}</h2>
+  <div class="head-actions">
+    <a href="{{ url_for('todos.export_data') }}" class="btn btn-soft btn-sm" title="Export tasks">
+      <svg class="icon icon-sm" aria-hidden="true"><use href="{{ icons }}#export"/></svg>Export
+    </a>
+    <a href="{{ url_for('todos.import_data') }}" class="btn btn-soft btn-sm" title="Import tasks">
+      <svg class="icon icon-sm" aria-hidden="true"><use href="{{ icons }}#download"/></svg>Import
+    </a>
+  </div>
+</div>
+
+{% if todos %}
+<ul class="expense-list">
+  {% for todo in todos %}
+  {% set overdue = todo.due_date and not todo.done and todo.due_date.date() < now.date() %}
+  <li class="expense-row{{ ' is-income' if todo.done }}">
+    <form method="post" action="{{ url_for('todos.action') }}" class="contents">
+      <input name="action" type="hidden" value="toggle">
+      <input name="id" type="hidden" value="{{ todo.id }}">
+      <button type="submit" class="expense-icon" aria-label="{{ 'Mark not done' if todo.done else 'Mark done' }}: {{ todo.title }}">
+        <svg class="icon" aria-hidden="true"><use href="{{ icons }}#check"/></svg>
+      </button>
+    </form>
+
+    <div class="expense-body">
+      <div class="expense-title">{{ todo.title }}</div>
+      <div class="expense-meta">
+        {% if todo.due_date %}<span class="{{ 'is-late' if overdue }}">{{ 'Overdue' if overdue else 'Due' }}: {{ todo.due_date.strftime('%b %d, %Y %I:%M %p') }}</span>{% endif %}
+        {% if todo.reminder_at %} · Reminder: {{ todo.reminder_at.strftime('%b %d, %Y %I:%M %p') }}{% if todo.reminded %} (notified){% endif %}{% endif %}
+        {% if todo.recurrence %} · ↻ Repeats {{ todo.recurrence }}{% endif %}
+        {% for t in todo.tags %}{{ ' · ' if loop.first and (todo.due_date or todo.reminder_at or todo.recurrence) else ' ' }}<a href="{{ url_for('todos.index') }}?tag={{ t.name }}">#{{ t.name }}</a>{% endfor %}
+      </div>
+    </div>
+
+    <span class="expense-actions">
+      <form method="post" action="{{ url_for('todos.action') }}">
+        <input name="action" type="hidden" value="delete">
+        <input name="id" type="hidden" value="{{ todo.id }}">
+        <button type="submit" class="btn-icon is-danger">
+          <svg class="icon" aria-hidden="true"><use href="{{ icons }}#trash"/></svg>
+          <span class="visually-hidden">Delete {{ todo.title }}</span>
+        </button>
+      </form>
+    </span>
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<div class="empty">
+  <span class="empty-icon"><svg class="icon icon-xl" aria-hidden="true"><use href="{{ icons }}#{{ 'search' if (q or tag) else 'inbox' }}"/></svg></span>
+  {% if q or tag %}
+  <p class="empty-title">Nothing matched</p>
+  <p class="empty-sub">Try a different search, or <a href="{{ url_for('todos.index') }}">clear the filters</a>.</p>
+  {% else %}
+  <p class="empty-title">No todos yet</p>
+  <p class="empty-sub">Tap the <strong>+</strong> button to add your first task.</p>
+  {% endif %}
+</div>
+{% endif %}
+
+<a href="#new-task" class="fab">
+  <svg class="icon icon-lg" aria-hidden="true"><use href="{{ icons }}#plus"/></svg>
+  <span class="visually-hidden">New task</span>
+</a>
+<script>
+(function () {
+  var listUrl = "{{ url_for('todos.reminders') }}";
+  var seenUrl = "{{ url_for('todos.reminder_seen') }}";
+  var banner = document.getElementById('notify-banner');
+  var btn = document.getElementById('notify-enable');
+  var host = document.getElementById('reminder-toasts');
+  var supported = 'Notification' in window;
+  var shown = {};
+
+  function refreshBanner() {
+    if (banner) banner.hidden = !supported || Notification.permission !== 'default';
+  }
+  if (btn) btn.addEventListener('click', function () {
+    Notification.requestPermission().then(refreshBanner);
+  });
+  refreshBanner();
+
+  function announce(t) {
+    var box = document.createElement('div');
+    box.className = 'alert alert-near mb-4';
+    box.setAttribute('role', 'status');
+    box.innerHTML = '<svg class="icon" aria-hidden="true"><use href="{{ icons }}#bell"/></svg><p></p>';
+    box.querySelector('p').textContent = 'Reminder: ' + t.title;
+    host.appendChild(box);
+    if (supported && Notification.permission === 'granted') {
+      try { new Notification('Daymark reminder', { body: t.title }); } catch (e) {}
+    }
+  }
+
+  function check() {
+    fetch(listUrl, { credentials: 'same-origin', headers: { Accept: 'application/json' } })
+      .then(function (r) { return r.ok ? r.json() : []; })
+      .then(function (list) {
+        var now = Date.now();
+        list.forEach(function (t) {
+          if (shown[t.id] || new Date(t.at).getTime() > now) return;
+          shown[t.id] = true;
+          announce(t);
+          var body = new URLSearchParams(); body.set('id', t.id);
+          fetch(seenUrl, { method: 'POST', credentials: 'same-origin', body: body });
+        });
+      })
+      .catch(function () {});
+  }
+  check();
+  setInterval(check, 30000);
+})();
+</script>
 {% endblock %}

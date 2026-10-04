@@ -1,22 +1,26 @@
 {% extends "base.html" %}
 {% block title %}Import Todos{% endblock %}
 {% block content %}
-<div class="container">
-  <div class="card">
-    <h1>Import Todos</h1>
-    <p>Upload a JSON file exported from this app to import todos into your account.</p>
-
-    {% if message %}
-      <p class="error">{{ message }}</p>
-    {% endif %}
-
-    <form method="post" enctype="multipart/form-data">
-      <label for="file">JSON file</label>
-      <input id="file" name="file" type="file" accept="application/json" required>
-      <button type="submit" class="mt">Import</button>
-    </form>
-
-    <p class="mt">Back to <a href="{{ url_for('todos.index') }}">todos</a></p>
-  </div>
+<div class="page-head">
+  <h1 class="page-title">Import todos</h1>
+  <p class="page-sub">Upload a JSON file exported from this app</p>
 </div>
+
+{% if message %}
+<div class="alert alert-over mb-4" role="alert">
+  <svg class="icon" aria-hidden="true"><use href="{{ url_for('static', filename='icons.svg') }}#alert"/></svg>
+  <p>{{ message }}</p>
+</div>
+{% endif %}
+
+<form method="post" enctype="multipart/form-data">
+  <section class="card mb-4">
+    <label class="label" for="file">JSON file</label>
+    <p class="hint">Todos in the file are added to your account.</p>
+    <input class="input" id="file" name="file" type="file" accept="application/json" required>
+  </section>
+  <button type="submit" class="btn btn-primary btn-block">Import</button>
+</form>
+
+<p class="hint mt-4"><a href="{{ url_for('todos.index') }}">← Back to todos</a></p>
 {% endblock %}

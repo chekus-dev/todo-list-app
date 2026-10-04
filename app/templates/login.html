@@ -1,24 +1,28 @@
 {% extends "base.html" %}
-{% block title %}Login{% endblock %}
+{% set auth_page = true %}
+{% block title %}Log in{% endblock %}
 {% block content %}
-<div class="container">
-  <div class="card auth-card">
-    <h1>Welcome back</h1>
-    <p>Login to see your todos.</p>
+<h1 class="auth-title">Welcome back</h1>
+<p class="auth-sub">Log in to see your todos.</p>
 
-    {% if error %}<p class="error">{{ error }}</p>{% endif %}
-
-    <form method="post" action="{{ url_for('auth.login') }}">
-      <label for="email">Email</label>
-      <input id="email" name="email" type="email" placeholder="you@example.com" required autofocus>
-
-      <label for="password" class="mt">Password</label>
-      <input id="password" name="password" type="password" placeholder="Your password" required>
-
-      <button type="submit" class="mt">Login</button>
-    </form>
-
-    <p class="mt">Don't have an account? <a href="{{ url_for('auth.register') }}">Register</a></p>
-  </div>
+{% if error %}
+<div class="alert alert-over mb-4" role="alert">
+  <svg class="icon" aria-hidden="true"><use href="{{ url_for('static', filename='icons.svg') }}#alert"/></svg>
+  <p>{{ error }}</p>
 </div>
+{% endif %}
+
+<form method="post" action="{{ url_for('auth.login') }}">
+  <div class="auth-field">
+    <label class="label" for="email">Email</label>
+    <input class="input" id="email" name="email" type="email" required autofocus autocomplete="email">
+  </div>
+  <div class="auth-field">
+    <label class="label" for="password">Password</label>
+    <input class="input" id="password" name="password" type="password" required autocomplete="current-password">
+  </div>
+  <button type="submit" class="btn btn-primary btn-block">Log in</button>
+</form>
+
+<p class="auth-foot">Don't have an account? <a href="{{ url_for('auth.register') }}">Create one</a></p>
 {% endblock %}
