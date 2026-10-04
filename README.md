@@ -1,5 +1,5 @@
 # Todo App
-<img width="1300" height="1216" alt="image" src="https://github.com/user-attachments/assets/8757c4f6-71f7-4e27-96ff-c697a1c472b5" />
+<img width="1317" height="1135" alt="image" src="https://github.com/user-attachments/assets/94708969-937a-4963-87e2-c5772b0e819e" />
 
 A Flask todo app with auth, due dates, reminders, recurrence, tags, search, and JSON import/export.
 
