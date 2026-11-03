@@ -1,0 +1,15 @@
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      PORT: 5000
+      SECRET_KEY: ${SECRET_KEY:-change-this-secret-key}
+      DATABASE_URL: sqlite:////app/data/todo.db
+    volumes:
+      - todo-data:/app/data
+    restart: unless-stopped
+
+volumes:
+  todo-data:

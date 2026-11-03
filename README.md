@@ -56,6 +56,22 @@ Visit **`http://127.0.0.1:5000`** — the SQLite database (`todo.db`) is created
 
 ---
 
+## 🐳 Docker
+
+Run the app in Docker with persistent SQLite storage:
+
+```bash
+SECRET_KEY="replace-with-a-long-random-value" docker compose up -d --build
+```
+
+Open `http://localhost:5000` on the computer running Docker. To use it from a phone, connect the phone to the same Wi-Fi network and open `http://YOUR_COMPUTER_IP:5000`. On Linux, find the computer IP with:
+
+```bash
+hostname -I
+```
+
+Docker runs this as a web app, not as a native mobile application. On the phone, use its browser menu to add the page to the home screen for app-like access. Stop the container with `docker compose down`; your database remains in the Docker volume.
+
 ## ☁️ Hosting
 
 This app is ready for any host that supports a Python web service. Set the `SECRET_KEY` environment variable, then use:
